@@ -6,8 +6,8 @@ except ImportError:
     from distutils.core import setup
 
 setup(
-    author='Brodie Rao',
-    author_email='brodie.rao@cpcc.edu',
+    author='CPCC',
+    author_email='webapps@cpcc.edu',
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',
@@ -19,7 +19,6 @@ setup(
         'Topic :: Internet :: WWW/HTTP',
     ],
     description='CAS 1.0/2.0 authentication backend for Django',
-    download_url='http://django-cas.googlecode.com/files/django_cas-2.0.3.zip',
     keywords='django cas cas2 authentication middleware backend',
     license='MIT',
     long_description="""
@@ -37,5 +36,5 @@ to the admin interface.
     name='django_cas',
     packages=['django_cas'],
     url='http://code.google.com/p/django-cas/',
-    version='2.0.3',
+    version='2.1.0',
 )
