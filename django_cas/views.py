@@ -70,7 +70,7 @@ def login(request, next_page=None, required=False):
         next_page = _redirect_url(request)
     if request.user.is_authenticated():
         message = "You are logged in as %s." % request.user.username
-        message.success(request, message)
+        messages.success(request, message)
         return HttpResponseRedirect(next_page)
     ticket = request.GET.get('ticket')
     service = _service_url(request, next_page)
@@ -81,7 +81,7 @@ def login(request, next_page=None, required=False):
             auth.login(request, user)
             name = user.first_name or user.username
             message = "Login succeeded. Welcome, %s." % name
-            message.success(request, message)
+            messages.success(request, message)
             return HttpResponseRedirect(next_page)
         elif settings.CAS_RETRY_LOGIN or required:
             return HttpResponseRedirect(_login_url(service))
