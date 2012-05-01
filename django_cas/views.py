@@ -86,7 +86,7 @@ def login(request, next_page=None, required=False):
             auth.login(request, user)
             name = user.first_name or user.username
             message = "Login succeeded. Welcome, %s." % name
-            user.message_set.create(message=message)
+            messages.add_message(request, messages.SUCCESS, message)
             return HttpResponseRedirect(next_page)
         elif settings.CAS_RETRY_LOGIN or required:
             return HttpResponseRedirect(_login_url(service, ticket))
