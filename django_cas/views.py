@@ -2,7 +2,7 @@
 from datetime import datetime
 from urllib import urlencode
 from urlparse import urljoin
-
+from django.contrib import messages
 from django.http import get_host, HttpResponseRedirect, HttpResponseForbidden, HttpResponse
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
@@ -74,7 +74,7 @@ def login(request, next_page=None, required=False):
         next_page = _redirect_url(request)
     if request.user.is_authenticated():
         message = "You are logged in as %s." % request.user.username
-        request.user.message_set.create(message=message)
+        messages.add_message(request, messages.SUCCESS, message)
         return HttpResponseRedirect(next_page)
     ticket = request.GET.get('ticket')
     service = _service_url(request, next_page)
