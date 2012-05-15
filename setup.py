@@ -6,8 +6,8 @@ except ImportError:
     from distutils.core import setup
 
 setup(
-    author='CPCC',
-    author_email='webapps@cpcc.edu',
+    author='(Brodie Rao) Sebastian Annies',
+    author_email='(brodie.rao@cpcc.edu) Sebastian.Annies@gmail.com',
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',
@@ -35,6 +35,6 @@ to the admin interface.
 """,
     name='django_cas',
     packages=['django_cas'],
-    url='http://code.google.com/p/django-cas/',
+    url='https://github.com/castlabs/django-cas',
     version='2.1.1',
 )

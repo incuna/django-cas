@@ -1,12 +1,14 @@
 """CAS login/logout replacement views"""
-
+from datetime import datetime
 from urllib import urlencode
 from urlparse import urljoin
-
-from django.http import get_host, HttpResponseRedirect, HttpResponseForbidden
+from django.contrib import messages
+from django.http import get_host, HttpResponseRedirect, HttpResponseForbidden, HttpResponse
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib import messages
+from django_cas.models import PgtIOU
+
 
 __all__ = ['login', 'logout']
 
@@ -43,13 +45,17 @@ def _redirect_url(request):
     return next
 
 
-def _login_url(service):
+def _login_url(service, ticket='ST'):
     """Generates CAS login URL"""
-
+    LOGINS = {'ST':'login',
+              'PT':'proxyValidate'}
     params = {'service': service}
     if settings.CAS_EXTRA_LOGIN_PARAMS:
         params.update(settings.CAS_EXTRA_LOGIN_PARAMS)
-    return urljoin(settings.CAS_SERVER_URL, 'login') + '?' + urlencode(params)
+    if not ticket:
+        ticket = 'ST'
+    login = LOGINS.get(ticket[:2],'login')
+    return urljoin(settings.CAS_SERVER_URL, login) + '?' + urlencode(params)
 
 
 def _logout_url(request, next_page=None):
@@ -77,6 +83,7 @@ def login(request, next_page=None, required=False):
     if ticket:
         from django.contrib import auth
         user = auth.authenticate(ticket=ticket, service=service)
+
         if user is not None:
             auth.login(request, user)
             name = user.first_name or user.username
@@ -84,12 +91,12 @@ def login(request, next_page=None, required=False):
             messages.success(request, message)
             return HttpResponseRedirect(next_page)
         elif settings.CAS_RETRY_LOGIN or required:
-            return HttpResponseRedirect(_login_url(service))
+            return HttpResponseRedirect(_login_url(service, ticket))
         else:
             error = "<h1>Forbidden</h1><p>Login failed.</p>"
             return HttpResponseForbidden(error)
     else:
-        return HttpResponseRedirect(_login_url(service))
+        return HttpResponseRedirect(_login_url(service, ticket))
 
 
 def logout(request, next_page=None):
@@ -103,3 +110,24 @@ def logout(request, next_page=None):
         return HttpResponseRedirect(_logout_url(request, next_page))
     else:
         return HttpResponseRedirect(next_page)
+
+def proxy_callback(request):
+    """Handles CAS 2.0+ XML-based proxy callback call.
+    Stores the proxy granting ticket in the database for 
+    future use.
+    
+    NB: Use created and set it in python in case database
+    has issues with setting up the default timestamp value
+    """
+    pgtIou = request.GET.get('pgtIou')
+    tgt = request.GET.get('pgtId')
+
+    if not (pgtIou and tgt):
+        return HttpResponse()
+
+    try:
+        PgtIOU.objects.create(tgt = tgt, pgtIou = pgtIou, created = datetime.now())
+    except:
+        return HttpResponse('PGT storage failed for %s' % str(request.GET), mimetype="text/plain")
+
+    return HttpResponse('Success', mimetype="text/plain")
