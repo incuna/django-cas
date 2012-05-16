@@ -1,3 +1,5 @@
+This fork of django_cas merges the versions from bitbucket.org/cpcc/django-cas:v2.1.1 and github.com/castlabs/django-cas:v2.1.1
+
 Django CAS
 ===========
 
