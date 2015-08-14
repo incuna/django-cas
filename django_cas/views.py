@@ -3,7 +3,7 @@ from datetime import datetime
 from urllib import urlencode
 from urlparse import urljoin
 from django.contrib import messages
-from django.http import get_host, HttpResponseRedirect, HttpResponseForbidden, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponseForbidden, HttpResponse
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib import messages
@@ -16,7 +16,7 @@ def _service_url(request, redirect_to=None):
     """Generates application service URL for CAS"""
 
     protocol = ('http://', 'https://')[request.is_secure()]
-    host = get_host(request)
+    host = request.get_host()
     service = protocol + host + request.path
     if redirect_to:
         if '?' in service:
@@ -39,7 +39,7 @@ def _redirect_url(request):
         else:
             next = request.META.get('HTTP_REFERER', settings.CAS_REDIRECT_URL)
         prefix = (('http://', 'https://')[request.is_secure()] +
-                  get_host(request))
+                  request.get_host())
         if next.startswith(prefix):
             next = next[len(prefix):]
     return next
@@ -64,7 +64,7 @@ def _logout_url(request, next_page=None):
     url = urljoin(settings.CAS_SERVER_URL, 'logout')
     if next_page:
         protocol = ('http://', 'https://')[request.is_secure()]
-        host = get_host(request)
+        host = request.get_host()
         url += '?' + urlencode({'url': protocol + host + next_page})
     return url
 
@@ -113,9 +113,9 @@ def logout(request, next_page=None):
 
 def proxy_callback(request):
     """Handles CAS 2.0+ XML-based proxy callback call.
-    Stores the proxy granting ticket in the database for 
+    Stores the proxy granting ticket in the database for
     future use.
-    
+
     NB: Use created and set it in python in case database
     has issues with setting up the default timestamp value
     """
