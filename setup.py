@@ -36,5 +36,5 @@ to the admin interface.
     name='django_cas',
     packages=['django_cas'],
     url='https://github.com/castlabs/django-cas',
-    version='2.1.2',
+    version='2.2+incuna.1',
 )
